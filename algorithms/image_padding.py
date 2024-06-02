@@ -1,5 +1,5 @@
 from PIL import Image
-from skimage.util import pad
+from numpy import pad
 import numpy as np
 
 from utils.math import findSmallestMultipleOf

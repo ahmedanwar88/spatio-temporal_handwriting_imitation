@@ -7,6 +7,7 @@ from PIL import Image
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from pipeline.skeletonization import Skeletonizer
 from pipeline.sampling import sample_to_penpositions
@@ -36,11 +37,34 @@ def main():
         skeletonImg = skeletonizer.skeletonize_sharp(skeletonBlurImg)
 
     penPositions = sample_to_penpositions(skeletonImg)
+    
+    orig_pos_list = []
+
+    print("Original pen positions:")
+    for penPosition in penPositions:
+      print(penPosition.__str__())
+      orig_pos_list.append(penPosition.__str__())
+
+    orig_df = pd.DataFrame(orig_pos_list)
+    orig_df.to_csv('orig_points.csv')
 
     with GravesWriter() as writer:
         newPenPositions = writer.write(args.text_out, args.text_in, penPositions)
 
+    
+
     newPenPositions = align(newPenPositions, penPositions)
+
+
+    print("New pen positions:")
+    print(newPenPositions)
+    out_pos_list = []
+    for penPosition in newPenPositions:
+      print(penPosition.__str__())
+      out_pos_list.append(penPosition.__str__())
+
+    out_df = pd.DataFrame(out_pos_list)
+    out_df.to_csv('out_points.csv')
 
     newSkeletonBlurImg, newSkeletonImg = render_skeleton(newPenPositions, inputImg.size)
 
@@ -64,8 +88,8 @@ def main():
     plt.imshow(newSkeletonBlurImg)
     plt.subplot(3, 2, 2)
     plt.imshow(outputImg)
-    plt.show()
-
+    #plt.show()
+    plt.savefig('output.png')
 
 if __name__ == "__main__":
     main()
