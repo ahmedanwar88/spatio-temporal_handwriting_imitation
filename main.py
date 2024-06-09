@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 from PIL import Image
 
 from pipeline.skeletonization import Skeletonizer
@@ -33,7 +34,7 @@ class Mimicking():
     def mimick(self, outputTxt):
         with GravesWriter() as writer:
             newPenPositions = writer.write(outputTxt, self.inputTxt, self.penPositions)
-            newPenPositions = align(newPenPositions, self.penPositions)
+        newPenPositions = align(newPenPositions, self.penPositions)
         strokes = self.filter_strokes(newPenPositions)
         return strokes
    
