@@ -31,9 +31,8 @@ class Mimicking():
                 strokes.append(strokes_dict)
         return strokes
 
-    def mimick(self, outputTxt):
-        with GravesWriter() as writer:
-            newPenPositions = writer.write(outputTxt, self.inputTxt, self.penPositions)
+    def mimick(self, writer, outputTxt):
+        newPenPositions = writer.write(outputTxt, self.inputTxt, self.penPositions)
         newPenPositions = align(newPenPositions, self.penPositions)
         strokes = self.filter_strokes(newPenPositions)
         return strokes
@@ -41,10 +40,38 @@ class Mimicking():
 def main():
     inputImg = Image.open("input.png")
     inputTxt = "above or sinking below"
-    outputTxt = "HandWrAiter Project"
+    outputTxt = "H"
 
+    start_time = time.time()
     mimicking = Mimicking(inputImg, inputTxt)
-    strokes = mimicking.mimick(outputTxt)
+    end_time = time.time()
+    print(f"Model loading takes {end_time - start_time} s")
+    
+    with GravesWriter() as writer:
+        start_time = time.time()
+        strokes = mimicking.mimick(writer, outputTxt)
+        end_time = time.time()
+        print(f"Model first inference takes {end_time - start_time} s")
+
+        start_time = time.time()
+        strokes = mimicking.mimick(writer, outputTxt)
+        end_time = time.time()
+        print(f"Model second inference takes {end_time - start_time} s")
+
+        start_time = time.time()
+        strokes = mimicking.mimick(writer, outputTxt)
+        end_time = time.time()
+        print(f"Model third inference takes {end_time - start_time} s")
+        
+        times = []
+        for _ in range(5):
+            start_time = time.time()
+            strokes = mimicking.mimick(writer, outputTxt)
+            end_time = time.time()
+            times.append(end_time - start_time)
+        print(times)
+        print(f"\nAverage inference time = {round(sum(times) / len(times) * 1000, 2)} ms")
+    
     
 if __name__ == "__main__":
     main()

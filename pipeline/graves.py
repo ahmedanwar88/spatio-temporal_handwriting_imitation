@@ -1,8 +1,10 @@
 import logging
 import os
 import gc
+import tensorflow as tf
 
 import numpy as np
+import time
 
 from utils import add_path
 
@@ -91,7 +93,6 @@ class GravesWriter(object):
         del self.nn
 
     def write(self, newText, oldText, oldStrokes, bias=0.9):
-
         # Sanity check
         valid_char_set = set(drawing.alphabet)
         for line_num, line in [('old-text', oldText), ('new-text', newText)]:
@@ -120,7 +121,6 @@ class GravesWriter(object):
 
         # Undo the preprocessing
         newStrokes = undo_preprocess(generatedSamples, normalizationFactor)
-
         return newStrokes
 
     # line = new_text
@@ -153,10 +153,9 @@ class GravesWriter(object):
             self.nn.c_len: chars_len,
             self.nn.bias: biases}
 
-        [samples] = self.nn.session.run(
-            [self.nn.sampled_sequence],
-            feed_dict=feed_dict
-        )
+        with self.nn.session.as_default():
+            with self.nn.session.graph.as_default():
+                [samples] = self.nn.session.run([self.nn.sampled_sequence], feed_dict=feed_dict)
         return samples[0]
         #samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         #return samples
